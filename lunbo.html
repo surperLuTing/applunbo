@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+</head>
+<style>
+    body{
+        margin:0;
+    }
+    ul,li{
+        margin:0;
+        padding:0;
+        width:100%;
+        height:300px;
+        list-style: none;
+    }
+    .big-box{
+        width:100%;
+        height:300px;
+        overflow: hidden;
+    }
+    .box{
+        width:300%;
+        height: 100%;
+    }
+    .box li{
+        width:33.333333%;
+        height:100%;
+        float: left;
+        text-align: center;
+        line-height: 300px;
+        font-size:50px;
+    }
+</style>
+<body>
+<div class="big-box">
+    <ul class="box">
+        <li style="background:pink;">1</li>
+        <li style="background:yellow;">2</li>
+        <li style="background:orchid">3</li>
+    </ul>
+</div>
+<script>
+    //获取元素
+    var bigBox=document.querySelector(".big-box");
+    var box=document.querySelector(".box");
+    //获取屏幕宽度
+    var wh=document.documentElement.clientWidth;
+    var index=0;
+    //自动切换
+    var t=setInterval(move,2000)
+    function move(){
+        index++;
+        box.style.transition="margin-left 1s";
+        if(index==3){
+            index=0;
+            box.style.transition="";
+        }
+        box.style.marginLeft=-index*wh+"px";
+
+
+
+    }
+    //添加事件--开始触摸
+    bigBox.addEventListener("touchstart",function (e) {
+        clearInterval(t)
+        //获取事件对象距离视口的距离
+        var th= e.targetTouches[0];
+        var sw=th.clientX;
+        var dur=0;
+        var stime=e.timeStamp;
+        var cl;
+
+        window.addEventListener("touchmove",m);
+        function m(e) {
+            //获取事件对象距离视口的距离
+            var th= e.targetTouches[0];
+            var aw=th.clientX;
+            cl=aw-sw;//移动的距离
+            box.style.transition="";//过渡会影响效果，故为空；
+            box.style.marginLeft=cl-index*wh+"px";
+        }
+        bigBox.addEventListener("touchend",end);
+        function end(e){
+            dur=e.timeStamp-stime;
+            var k=Math.abs(e.changedTouches[0].clientX-sw);
+            box.style.transition="margin-left 1s";
+            if(Math.abs(cl)>wh/2||(dur<200&&k>30)){
+                //判断范围--限制
+                if(cl>0){
+                    index--;
+                    if(index==-1){
+                        index=0;
+                    }
+                }else{
+                    index++;
+                    if(index==3){
+                        index=2;
+                    }
+                }
+                box.style.marginLeft=-index*wh+"px";
+            }else{
+                box.style.marginLeft=-index*wh+"px";
+            }
+            //因为end会注册多个,所以重置
+            bigBox.removeEventListener("touchmove",m);
+            bigBox.removeEventListener("touchend",end);
+            t=setInterval(move,2000);
+        }
+
+    })
+
+
+</script>
+</body>
+</html>
